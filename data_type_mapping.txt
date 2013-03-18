@@ -1,0 +1,18 @@
+From c++ to Actionscript
+
+bool		Boolean	ByteArray.readBoolean
+uint8_t		uint	ByteArray.readUnsignedByte
+uint16_t	uint	ByteArray.readUnsignedShort
+uint32_t	uint	ByteArray.readUnsignedInt
+uint64_t	Number	ByteArray.readDouble			pending
+int8_t		int		ByteArray.readByte
+int16_t		int		ByteArray.readShort
+int32_t		int		ByteArray.readInt
+int64_t		Number	ByteArray.readDouble			pending
+float		Number 	ByteArray.readFloat
+double		Number 	ByteArray.readDouble
+std::string	String	ByteArray.readUTFBytes			pending
+std::vector	Vector	
+std::list	Vector
+std::set	Vector
+std::map	Object

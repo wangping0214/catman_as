@@ -45,12 +45,16 @@ package
 		private function connectHandler(event : Event) : void
 		{
 			trace("connectHandler: " + event);
+			
+			var itemlist : Vector.<int> = new Vector.<int>();
+			for each (var abc:int in itemlist)
+				;
 			// send data
 			/*
 			var sendBuff : ByteArray = new ByteArray();
 			sendBuff.endian = Endian.LITTLE_ENDIAN;
 			sendBuff.writeUnsignedInt(1);
-			var userName : String = "wangping";
+			var userName : String = "中国";
 			sendBuff.writeUnsignedInt(userName.length);
 			sendBuff.writeMultiByte(userName, "utf-8");
 			var password : String = "admin";
@@ -61,6 +65,27 @@ package
 			m_clientConn.flush();
 			trace("send finish");
 			*/
+			var sendBuff : ByteArray = new ByteArray();
+			sendBuff.endian = Endian.LITTLE_ENDIAN;
+			/*
+			var strBuff : ByteArray = new ByteArray();
+			strBuff.endian = Endian.LITTLE_ENDIAN;
+			//strBuff.writeUTFBytes("中国");
+			strBuff.writeMultiByte("中国", "gb2312");
+			trace("strBuff len: " + strBuff.length);
+			sendBuff.writeUnsignedInt(strBuff.length);
+			sendBuff.writeBytes(strBuff);
+			*/
+			//var lval : Number = 0xFFFFFFFFF;
+			//sendBuff.writeDouble(lval);
+			
+			sendBuff.writeBoolean(true);
+			m_clientConn.writeBytes(sendBuff);
+			m_clientConn.flush();
+			
+			//var ival : int = 0;
+			//changeInt(lval);
+			trace("ival is: " + sendBuff.length);
 		}
 		
 		private function closeHandler(event : Event) : void
@@ -81,6 +106,11 @@ package
 		private function socketDataHandler(event : ProgressEvent) : void
 		{
 			trace("socketDataHandler: " + event);
+		}
+		
+		private function changeInt(i : Number) : void
+		{
+			i = 5;
 		}
 	}
 	
