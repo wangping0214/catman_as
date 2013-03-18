@@ -30,7 +30,7 @@ package
 			// entry point
 			m_clientConn = new Socket();
 			configureListeners();
-			m_clientConn.connect("127.0.0.1", 5000);
+			m_clientConn.connect("192.168.0.102", 50000);
 		}
 		
 		private function configureListeners() : void
@@ -45,18 +45,16 @@ package
 		private function connectHandler(event : Event) : void
 		{
 			trace("connectHandler: " + event);
-			
-			var itemlist : Vector.<int> = new Vector.<int>();
-			for each (var abc:int in itemlist)
-				;
 			// send data
-			/*
 			var sendBuff : ByteArray = new ByteArray();
 			sendBuff.endian = Endian.LITTLE_ENDIAN;
 			sendBuff.writeUnsignedInt(1);
 			var userName : String = "中国";
-			sendBuff.writeUnsignedInt(userName.length);
-			sendBuff.writeMultiByte(userName, "utf-8");
+			var nameArray : ByteArray = new ByteArray();
+			nameArray.endian = Endian.LITTLE_ENDIAN;
+			nameArray.writeUTFBytes(userName);
+			sendBuff.writeUnsignedInt(nameArray.length);
+			sendBuff.writeBytes(nameArray);
 			var password : String = "admin";
 			sendBuff.writeUnsignedInt(password.length);
 			sendBuff.writeMultiByte(password, "utf-8");
@@ -64,28 +62,6 @@ package
 			m_clientConn.writeBytes(sendBuff);
 			m_clientConn.flush();
 			trace("send finish");
-			*/
-			var sendBuff : ByteArray = new ByteArray();
-			sendBuff.endian = Endian.LITTLE_ENDIAN;
-			/*
-			var strBuff : ByteArray = new ByteArray();
-			strBuff.endian = Endian.LITTLE_ENDIAN;
-			//strBuff.writeUTFBytes("中国");
-			strBuff.writeMultiByte("中国", "gb2312");
-			trace("strBuff len: " + strBuff.length);
-			sendBuff.writeUnsignedInt(strBuff.length);
-			sendBuff.writeBytes(strBuff);
-			*/
-			//var lval : Number = 0xFFFFFFFFF;
-			//sendBuff.writeDouble(lval);
-			
-			sendBuff.writeBoolean(true);
-			m_clientConn.writeBytes(sendBuff);
-			m_clientConn.flush();
-			
-			//var ival : int = 0;
-			//changeInt(lval);
-			trace("ival is: " + sendBuff.length);
 		}
 		
 		private function closeHandler(event : Event) : void
@@ -106,11 +82,14 @@ package
 		private function socketDataHandler(event : ProgressEvent) : void
 		{
 			trace("socketDataHandler: " + event);
-		}
-		
-		private function changeInt(i : Number) : void
-		{
-			i = 5;
+			var recvBuff : ByteArray = new ByteArray();
+			recvBuff.endian = Endian.LITTLE_ENDIAN;
+			m_clientConn.readBytes(recvBuff);
+			trace("Recv: " + recvBuff.length);
+			var proType : uint = recvBuff.readUnsignedInt();
+			var strSize : uint = recvBuff.readUnsignedInt();
+			var res : String = recvBuff.readUTFBytes(strSize);
+			trace("Res is: " + res);
 		}
 	}
 	

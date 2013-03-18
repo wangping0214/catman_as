@@ -11,8 +11,26 @@ int32_t		int		ByteArray.readInt
 int64_t		Number	ByteArray.readDouble			pending
 float		Number 	ByteArray.readFloat
 double		Number 	ByteArray.readDouble
-std::string	String	ByteArray.readUTFBytes			pending
+std::string	String	ByteArray.readUTFBytes
 std::vector	Vector	
 std::list	Vector
 std::set	Vector
 std::map	Object
+
+
+How transfer the string between C++ server and Actionscript client correctly?
+
+On server side, we set the locale of the C++ server and it's host operating system
+to zh_CN.UTF-8, then all multi-byte string are encoded in UTF-8. We don't use
+wchar_t in Linux, because it occupies four bytes, it's wasteful. In this way, a C++
+string is marshaled as a UTF-8 byte array, then the byte array was sent to client.
+
+On client side, the String was written as an UTF-8 bytes to a byte stream.
+
+So, the server and client side both receive and send UTF-8 byte stream when 
+transforming string. It's very consistent and works fine indeed.
+
+
+
+ 
+
