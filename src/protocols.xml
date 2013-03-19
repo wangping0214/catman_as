@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application namespace="">
+	<protocol name="PlayerLogin" type="1">
+		<variable name="userName" type="std::string" attr="ref"/>
+		<variable name="password" type="std::string" attr="ref"/>
+	</protocol>
+	<protocol name="LoginResponse" type="2">
+		<variable name="loginResult" type="std::string" attr="ref"/>
+	</protocol>
+	<rpc name="Register" type="3">
+	</rpc>
+	<rpcdata name="RegisterArg">
+		<variable name="userName" type="std::string" attr="ref"/>
+		<variable name="password" type="std::string" attr="ref"/>
+	</rpcdata>
+	<rpcdata name="RegisterRes">
+		<variable name="retcode" type="int"/>
+		<variable name="result" type="std::string" attr="ref"/>
+	</rpcdata>
+</application>

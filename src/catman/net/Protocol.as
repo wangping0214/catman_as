@@ -11,7 +11,7 @@ package catman.net
 	 */
 	public class Protocol implements Marshal
 	{
-		private static var s_typeProtocolMap : Object;
+		private static var s_typeProtocolMap : Object = new Object();
 		protected var m_type : uint;
 		
 		public function Protocol(type : uint) 
@@ -68,6 +68,8 @@ package catman.net
 		
 		public static function decode(stream : OctetsStream) : Protocol
 		{
+			if (stream.bytesAvailable < 4)	// less than the bytes of uint
+				return null;
 			var protocol : Protocol = null;
 			var type : uint = stream.unmarshal_uint32_t();
 			protocol = create(type);

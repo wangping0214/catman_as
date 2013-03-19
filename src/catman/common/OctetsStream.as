@@ -11,7 +11,7 @@ package catman.common
 	{
 		protected var m_data : ByteArray;
 		
-		public function OctetsStream(endian : String = Endian.BIG_ENDIAN) 
+		public function OctetsStream(endian : String = Endian.LITTLE_ENDIAN) 
 		{
 			m_data = new ByteArray();
 			m_data.endian = endian;
@@ -20,6 +20,11 @@ package catman.common
 		public function get bytes() : ByteArray
 		{
 			return m_data;
+		}
+		
+		public function get bytesAvailable() : uint
+		{
+			return m_data.bytesAvailable;
 		}
 		
 		public function marshal_bool(val : Boolean) : OctetsStream

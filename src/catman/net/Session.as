@@ -6,6 +6,9 @@ package catman.net
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.Socket;
+	// temporary
+	import protocol.LoginResponse;
+	import protocol.PlayerLogin;
 	
 	/**
 	 * ...
@@ -46,14 +49,21 @@ package catman.net
 		protected function connectHandler(event : Event) : void
 		{
 			m_permitSend = true;
+			// temporary
+			var pl : PlayerLogin = new PlayerLogin();
+			pl.userName = "毛太祖";
+			pl.password = "毛泽东";
+			send(pl);
 		}
 		
 		protected function socketDataHandler(event : ProgressEvent) : void
 		{
 			var stream : OctetsStream = new OctetsStream();
+			
 			m_sock.readBytes(stream.bytes);
-			for (var protocol : Protocol = Protocol.decode(stream); protocol != null; )
-				protocol.process();
+			for (var p : Protocol; (p = Protocol.decode(stream)) != null; )
+				p.process();
+			
 		}
 		
 		protected function closeHandler(event : Event) : void
