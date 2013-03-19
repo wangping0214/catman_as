@@ -2,6 +2,7 @@ package catman.net
 {
 	import catman.common.Marshal;
 	import catman.common.OctetsStream;
+	import flash.errors.IllegalOperationError;
 	import flash.utils.ByteArray;
 	
 	/**
@@ -39,6 +40,11 @@ package catman.net
 		public function unmarshal(stream : OctetsStream) : OctetsStream
 		{	
 			return stream;
+		}
+		
+		public function process() : void
+		{
+			throw new IllegalOperationError("Abstract operation: process, it must be overrided.");
 		}
 		
 		private static function getStub(type : uint) : Protocol

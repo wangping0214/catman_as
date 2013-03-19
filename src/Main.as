@@ -10,6 +10,7 @@ package
 	import flash.utils.Endian;
 	import flash.system.Security;
 	import catman.net.Protocol;
+	import catman.net.Session;
 	
 	/**
 	 * ...
@@ -29,6 +30,7 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			var p : Protocol = new Protocol(1);
+			var s : Session;
 			// entry point
 			m_clientConn = new Socket();
 			configureListeners();
