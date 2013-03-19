@@ -11,10 +11,15 @@ package catman.common
 	{
 		protected var m_data : ByteArray;
 		
-		public function OctetsStream(endian : Endian = Endian.BIG_ENDIAN) 
+		public function OctetsStream(endian : String = Endian.BIG_ENDIAN) 
 		{
 			m_data = new ByteArray();
 			m_data.endian = endian;
+		}
+		
+		public function get bytes() : ByteArray
+		{
+			return m_data;
 		}
 		
 		public function marshal_bool(val : Boolean) : OctetsStream
@@ -92,6 +97,63 @@ package catman.common
 			utfBuff.writeUTFBytes(val);
 			m_data.writeUnsignedInt(utfBuff.length);
 			m_data.writeBytes(utfBuff);
+			return this;
+		}
+		
+		public function unmarshal_bool() : Boolean
+		{
+			return m_data.readBoolean();
+		}
+		
+		public function unmarshal_int8_t() : int
+		{
+			return m_data.readByte();
+		}
+		
+		public function unmarshal_int16_t() : int
+		{
+			return m_data.readShort();
+		}
+		
+		public function unmarshal_int32_t() : int
+		{
+			return m_data.readInt();
+		}
+		
+		public function unmarshal_int64_t() : Number
+		{
+			return m_data.readDouble();
+		}
+		
+		public function unmarshal_uint8_t() : uint
+		{
+			return m_data.readUnsignedByte();
+		}
+		
+		public function unmarshal_uint16_t() : uint
+		{
+			return m_data.readUnsignedShort();
+		}
+		
+		public function unmarshal_uint32_t() : uint
+		{
+			return m_data.readUnsignedInt();
+		}
+		
+		public function unmarshal_float() : Number
+		{
+			return m_data.readFloat();
+		}
+		
+		public function unmarshal_double() : Number
+		{
+			return m_data.readDouble();
+		}
+		
+		public function unmarshal_string() : String
+		{
+			var bytes : uint = m_data.readUnsignedInt();
+			return m_data.readUTFBytes(bytes);
 		}
 	}
 

@@ -9,6 +9,7 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.Endian;
 	import flash.system.Security;
+	import catman.net.Protocol;
 	
 	/**
 	 * ...
@@ -27,6 +28,7 @@ package
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
+			var p : Protocol = new Protocol(1);
 			// entry point
 			m_clientConn = new Socket();
 			configureListeners();

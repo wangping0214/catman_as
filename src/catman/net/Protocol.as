@@ -13,7 +13,7 @@ package catman.net
 		private static var s_typeProtocolMap : Object;
 		protected var m_type : uint;
 		
-		protected function Protocol(type : uint) 
+		public function Protocol(type : uint) 
 		{
 			m_type = type;
 			if (getStub(m_type) == null)
@@ -33,10 +33,12 @@ package catman.net
 		
 		public function marshal(stream : OctetsStream) : OctetsStream
 		{
+			return stream;
 		}
 		
-		public function unmarshal(stream : OctetsStream) : OctetsStream;
+		public function unmarshal(stream : OctetsStream) : OctetsStream
 		{	
+			return stream;
 		}
 		
 		private static function getStub(type : uint) : Protocol
@@ -55,6 +57,7 @@ package catman.net
 			var stream : OctetsStream = new OctetsStream();
 			stream.marshal_uint32_t(protocol.type);
 			protocol.marshal(stream);
+			return stream.bytes;
 		}
 		
 		public static function decode(stream : OctetsStream) : Protocol
