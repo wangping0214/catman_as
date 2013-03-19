@@ -7,8 +7,8 @@ package catman.common
 	 */
 	public interface Marshal 
 	{
-		public function marshal(stream : OctetsStream) : void;
-		public function unmarshal(stream : OctetsStream) : void;
+		public function marshal(stream : OctetsStream) : OctetsStream;
+		public function unmarshal(stream : OctetsStream) : OctetsStream;
 	}
 	
 }
