@@ -1,3 +1,7 @@
+/**************************************************************
+ * (C) Copyright 2013 Alanmars
+ * Keep it simple at first 
+ *************************************************************/
 package catman.net 
 {
 	import catman.common.OctetsStream;
