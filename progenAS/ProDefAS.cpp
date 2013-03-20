@@ -1,6 +1,8 @@
 #include "ProDefAS.h"
 #include "TabString.h"
 #include <assert.h>
+#include <algorithm>
+#include <iterator>
 
 ProDefAS::ProDefAS(const tinyxml2::XMLElement *proElem) : m_name(proElem->Attribute("name"))
 {
@@ -28,6 +30,7 @@ void ProDefAS::write(const std::string &dirPath, uint32_t tabCount) const
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
 	fprintf(destFile, "%simport catman.common.OctetsStream;\n", TabString::get(tabCount + 1));
 	fprintf(destFile, "%simport catman.net.Protocol;\n", TabString::get(tabCount + 1));
+	fprintf(destFile, "%simport flash.events.Event;\n", TabString::get(tabCount + 1));
 	fprintf(destFile, "\n");
 	fprintf(destFile, "%spublic class %s extends Protocol\n", TabString::get(tabCount + 1), m_name.c_str());
 	fprintf(destFile, "%s{\n", TabString::get(tabCount + 1));
@@ -46,15 +49,18 @@ void ProDefAS::writeFields(FILE *destFile, uint32_t tabCount) const
 
 void ProDefAS::writeMethods(FILE *destFile, uint32_t tabCount) const
 {
+	std::string upperName;
+	std::transform(m_name.begin(), m_name.end(), std::back_inserter(upperName), toupper);
+
 	// constructor
 	fprintf(destFile, "%spublic function %s()\n", TabString::get(tabCount), m_name.c_str());
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
-	fprintf(destFile, "%ssuper(%u);\n", TabString::get(tabCount + 1), m_type);
+	fprintf(destFile, "%ssuper(%u, ProtocolType.%s);\n", TabString::get(tabCount + 1), m_type, upperName.c_str());
 	fprintf(destFile, "%s}\n", TabString::get(tabCount));
 	fprintf(destFile, "\n");
 
 	// clone method
-	fprintf(destFile, "%soverride public function clone() : Protocol\n", TabString::get(tabCount));
+	fprintf(destFile, "%spublic override function clone() : Event\n", TabString::get(tabCount));
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
 	fprintf(destFile, "%svar dup : %s = new %s();\n", TabString::get(tabCount + 1), m_name.c_str(), m_name.c_str());
 	for (FieldList::const_iterator it = m_fields.begin(), ie = m_fields.end(); it != ie; ++ it)
@@ -63,8 +69,18 @@ void ProDefAS::writeMethods(FILE *destFile, uint32_t tabCount) const
 	fprintf(destFile, "%s}\n", TabString::get(tabCount));
 	fprintf(destFile, "\n");
 
+	// tostring method
+	fprintf(destFile, "%spublic override function toString() : String\n", TabString::get(tabCount));
+	fprintf(destFile, "%s{\n", TabString::get(tabCount));
+	std::string paramList("\"AlarmEvent\", \"type\", \"bubbles\", \"cancelable\", \"eventPhase\", \"m_id\"");
+	for (FieldList::const_iterator it = m_fields.begin(), ie = m_fields.end(); it != ie; ++ it)
+		paramList += ", \"" + it->name() + "\"";
+	fprintf(destFile, "%sreturn formatToString(%s);", TabString::get(tabCount + 1), paramList.c_str());
+	fprintf(destFile, "%s}\n", TabString::get(tabCount));
+	fprintf(destFile, "\n");
+
 	// marshal method
-	fprintf(destFile, "%soverride public function marshal(stream : OctetsStream) : OctetsStream\n", TabString::get(tabCount));
+	fprintf(destFile, "%spublic override function marshal(stream : OctetsStream) : OctetsStream\n", TabString::get(tabCount));
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
 	for (FieldList::const_iterator it = m_fields.begin(), ie = m_fields.end(); it != ie; ++ it)
 	{
@@ -78,7 +94,7 @@ void ProDefAS::writeMethods(FILE *destFile, uint32_t tabCount) const
 	fprintf(destFile, "\n");
 
 	// unmarshal method
-	fprintf(destFile, "%soverride public function unmarshal(stream : OctetsStream) : OctetsStream\n", TabString::get(tabCount));
+	fprintf(destFile, "%spublic override function unmarshal(stream : OctetsStream) : OctetsStream\n", TabString::get(tabCount));
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
 	for (FieldList::const_iterator it = m_fields.begin(), ie = m_fields.end(); it != ie; ++ it)
 	{
@@ -89,12 +105,18 @@ void ProDefAS::writeMethods(FILE *destFile, uint32_t tabCount) const
 	}
 	fprintf(destFile, "%sreturn stream;\n", TabString::get(tabCount + 1));
 	fprintf(destFile, "%s}\n", TabString::get(tabCount));
-	fprintf(destFile, "\n");
+	// fprintf(destFile, "\n");
 
 	// process method
+	/*
 	fprintf(destFile, "%soverride public function process() : void\n", TabString::get(tabCount));
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
 	fprintf(destFile, "%s// TODO: add your code here.\n", TabString::get(tabCount + 1));
 	fprintf(destFile, "%s}\n", TabString::get(tabCount));
+	*/
 }
 
+const std::string& ProDefAS::name() const
+{
+	return m_name;
+}

@@ -7,33 +7,40 @@ package catman.net
 	import catman.common.Marshal;
 	import catman.common.OctetsStream;
 	import flash.errors.IllegalOperationError;
+	import flash.events.Event;
 	import flash.utils.ByteArray;
 	
 	/**
 	 * ...
 	 * @author Alanmars
 	 */
-	public class Protocol implements Marshal
+	public class Protocol extends Event implements Marshal
 	{
 		private static var s_typeProtocolMap : Object = new Object();
-		protected var m_type : uint;
+		protected var m_id : uint;
 		
-		public function Protocol(type : uint) 
+		public function Protocol(id : uint, type : String) 
 		{
-			m_type = type;
-			if (getStub(m_type) == null)
-				s_typeProtocolMap[m_type] = this;
+			super(type);
+			m_id = id;
+			if (getStub(m_id) == null)
+				s_typeProtocolMap[m_id] = this;
 		}
 		
-		public function get type() : uint
+		public function get id() : uint
 		{
-			return m_type;
+			return m_id;
 		}
 		
-		public function clone() : Protocol
+		public override function clone() : Event
 		{
-			var dup : Protocol = new Protocol(m_type);
+			var dup : Protocol = new Protocol(m_id, type);
 			return dup;
+		}
+		
+		public override function toString() : String
+		{
+			return formatToString("AlarmEvent", "type", "bubbles", "cancelable", "eventPhase", "m_id");
 		}
 		
 		public function marshal(stream : OctetsStream) : OctetsStream
@@ -46,26 +53,21 @@ package catman.net
 			return stream;
 		}
 		
-		public function process() : void
+		private static function getStub(id : uint) : Protocol
 		{
-			throw new IllegalOperationError("Abstract operation: process, it must be overrided.");
+			return s_typeProtocolMap[id];
 		}
 		
-		private static function getStub(type : uint) : Protocol
+		public static function create(id : uint) : Protocol
 		{
-			return s_typeProtocolMap[type];
-		}
-		
-		public static function create(type : uint) : Protocol
-		{
-			var stub : Protocol = getStub(type);
-			return stub != null ? stub.clone() : null;
+			var stub : Protocol = getStub(id);
+			return stub != null ? stub.clone() as Protocol : null;
 		}
 		
 		public static function encode(protocol : Protocol) : ByteArray
 		{
 			var stream : OctetsStream = new OctetsStream();
-			stream.marshal_uint32_t(protocol.type);
+			stream.marshal_uint32_t(protocol.m_id);
 			protocol.marshal(stream);
 			return stream.bytes;
 		}
@@ -75,8 +77,8 @@ package catman.net
 			if (stream.bytesAvailable < 4)	// less than the bytes of uint
 				return null;
 			var protocol : Protocol = null;
-			var type : uint = stream.unmarshal_uint32_t();
-			protocol = create(type);
+			var m_id : uint = stream.unmarshal_uint32_t();
+			protocol = create(m_id);
 			if (protocol != null)
 				protocol.unmarshal(stream);
 			return protocol;

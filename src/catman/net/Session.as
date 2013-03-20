@@ -6,28 +6,31 @@ package catman.net
 {
 	import catman.common.OctetsStream;
 	import flash.events.Event;
+	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.Socket;
-	// temporary
-	import protocol.LoginResponse;
 	import protocol.PlayerLogin;
 	
 	/**
 	 * ...
 	 * @author Alanmars
 	 */
-	public class Session 
+	public class Session extends EventDispatcher
 	{
 		protected var m_sock : Socket;
 		protected var m_permitSend : Boolean;
 		
-		public function Session(ipAddr : String, port : int) 
+		public function Session() 
 		{
 			m_sock = new Socket();
 			m_permitSend = false;
 			configureListeners();
+		}
+		
+		public function start(ipAddr : String, port : int) : void
+		{
 			m_sock.connect(ipAddr, port);
 		}
 		
@@ -66,7 +69,7 @@ package catman.net
 			
 			m_sock.readBytes(stream.bytes);
 			for (var p : Protocol; (p = Protocol.decode(stream)) != null; )
-				p.process();
+				dispatchEvent(p);
 			
 		}
 		

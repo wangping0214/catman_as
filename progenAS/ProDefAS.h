@@ -15,6 +15,7 @@ public:
 	ProDefAS(const tinyxml2::XMLElement *proElem);
 	~ProDefAS(void);
 	void write(const std::string &dirPath, uint32_t tabCount) const;
+	const std::string& name() const;
 private:
 	void writeFields(FILE *destFile, uint32_t tabCount) const;
 	void writeMethods(FILE *destFile, uint32_t tabCount) const;
