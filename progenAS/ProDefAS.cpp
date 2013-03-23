@@ -1,5 +1,6 @@
 #include "ProDefAS.h"
 #include "TabString.h"
+#include "Toolkit.h"
 #include <assert.h>
 #include <algorithm>
 #include <iterator>
@@ -15,7 +16,7 @@ ProDefAS::~ProDefAS(void)
 {
 }
 
-void ProDefAS::write(const std::string &dirPath, uint32_t tabCount) const
+void ProDefAS::write(const std::string &dirPath, const std::string &ns, uint32_t tabCount) const
 {
 	std::string filePath(dirPath);
 	if (!filePath.empty())
@@ -23,10 +24,14 @@ void ProDefAS::write(const std::string &dirPath, uint32_t tabCount) const
 		if (filePath.find_last_of('/') != (filePath.size() - 1))
 			filePath += '/';
 	}
-	filePath += m_name + ".as";
+	char *nsPath = new char[ns.size() + 1];
+	strcpy(nsPath, ns.c_str());
+	Toolkit::StringReplace(nsPath, ".", "/");
+	filePath += std::string(nsPath) + "/" + m_name + ".as";
+	delete []nsPath;
 	FILE *destFile = fopen(filePath.c_str(), "w+");
 	assert(NULL != destFile);
-	fprintf(destFile, "%spackage protocol\n", TabString::get(tabCount));
+	fprintf(destFile, "%spackage %s\n", TabString::get(tabCount), ns.c_str());
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
 	fprintf(destFile, "%simport catman.common.OctetsStream;\n", TabString::get(tabCount + 1));
 	fprintf(destFile, "%simport catman.net.Protocol;\n", TabString::get(tabCount + 1));
