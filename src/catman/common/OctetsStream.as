@@ -4,6 +4,7 @@
  *************************************************************/
 package catman.common 
 {
+	import catman.error.MarshalError;
 	import flash.utils.Endian;
 	import flash.utils.ByteArray;
 	
@@ -111,57 +112,88 @@ package catman.common
 		
 		public function unmarshal_bool() : Boolean
 		{
+			if (m_data.bytesAvailable < 1)
+				throw new MarshalError(MarshalError.NO_BYTES_AVAILABLE);
 			return m_data.readBoolean();
 		}
 		
 		public function unmarshal_int8_t() : int
 		{
+			if (m_data.bytesAvailable < 1)
+				throw new MarshalError(MarshalError.NO_BYTES_AVAILABLE);
 			return m_data.readByte();
 		}
 		
 		public function unmarshal_int16_t() : int
 		{
+			if (m_data.bytesAvailable < 2)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readShort();
 		}
 		
 		public function unmarshal_int32_t() : int
 		{
+			if (m_data.bytesAvailable < 4)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readInt();
 		}
 		
 		public function unmarshal_int64_t() : Number
 		{
+			if (m_data.bytesAvailable < 8)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readDouble();
 		}
 		
 		public function unmarshal_uint8_t() : uint
 		{
+			if (m_data.bytesAvailable < 1)
+				throw new MarshalError(MarshalError.NO_BYTES_AVAILABLE);
 			return m_data.readUnsignedByte();
 		}
 		
 		public function unmarshal_uint16_t() : uint
 		{
+			if (m_data.bytesAvailable < 2)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readUnsignedShort();
 		}
 		
 		public function unmarshal_uint32_t() : uint
 		{
+			if (m_data.bytesAvailable < 4)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readUnsignedInt();
+		}
+		
+		public function unmarshal_uint64_t() : Number
+		{
+			if (m_data.bytesAvailable < 8)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
+			return m_data.readDouble();
 		}
 		
 		public function unmarshal_float() : Number
 		{
+			if (m_data.bytesAvailable < 4)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readFloat();
 		}
 		
 		public function unmarshal_double() : Number
 		{
+			if (m_data.bytesAvailable < 8)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readDouble();
 		}
 		
 		public function unmarshal_string() : String
 		{
+			if (m_data.bytesAvailable < 4)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			var bytes : uint = m_data.readUnsignedInt();
+			if (m_data.bytesAvailable < bytes)
+				throw new MarshalError(MarshalError.INSUFFICIENT_BYTES_AVAILABLE);
 			return m_data.readUTFBytes(bytes);
 		}
 	}

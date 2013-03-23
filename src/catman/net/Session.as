@@ -5,6 +5,7 @@
 package catman.net 
 {
 	import catman.common.OctetsStream;
+	import catman.error.MarshalError;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IOErrorEvent;
@@ -65,8 +66,16 @@ package catman.net
 			var stream : OctetsStream = new OctetsStream();
 			
 			m_sock.readBytes(stream.bytes);
-			for (var p : Protocol; (p = Protocol.decode(stream)) != null; )
-				dispatchEvent(p);
+			try
+			{
+				for (var p : Protocol; (p = Protocol.decode(stream)) != null; )
+					dispatchEvent(p);
+			}
+			catch (error : MarshalError)
+			{
+				trace(error.errorID + " : " + error.message);
+				m_sock.close();
+			}
 		}
 		
 		protected function closeHandler(event : Event) : void
