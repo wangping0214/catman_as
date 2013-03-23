@@ -2,6 +2,7 @@ package
 {
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import catman.net.Protocol;
 	import catman.net.Session;
 	import flash.text.TextField;
@@ -11,6 +12,7 @@ package
 	import protocol.LoginResponse;
 	import protocol.PlayerLogin;
 	import protocol.ProtocolType;
+	import ui.Button;
 	
 	/**
 	 * ...
@@ -22,6 +24,8 @@ package
 		private var lr : LoginResponse = new LoginResponse();
 		private var m_nameText : TextField = new TextField();
 		private var m_passwordText : TextField = new TextField();
+		private var m_resultLabel : TextField = new TextField();
+		private var m_resultFormat : TextFormat = new TextFormat();
 		
 		private var m_session : Session;
 		
@@ -38,8 +42,9 @@ package
 			initGui();
 			
 			m_session = new Session();
+			m_session.addEventListener(Event.CONNECT, sessionConnectHandler);
 			m_session.addEventListener(ProtocolType.LOGINRESPONSE, loginResponseHandler);
-			//m_session.start("192.168.0.102", 50000);
+			m_session.start("192.168.0.102", 50000);
 		}
 		
 		private function initGui() : void
@@ -47,6 +52,12 @@ package
 			var myFormat : TextFormat = new TextFormat();
 			myFormat.color = 0x000000;
 			myFormat.size = 16;
+			
+			m_resultLabel.x = 320;
+			m_resultLabel.y = 70;
+			m_resultLabel.selectable = false;
+			m_resultLabel.autoSize = TextFieldAutoSize.LEFT;
+			addChild(m_resultLabel);
 			
 			var nameLabel : TextField = new TextField();
 			nameLabel.x = 300;
@@ -82,12 +93,36 @@ package
 			m_passwordText.displayAsPassword = true;
 			m_passwordText.border = true;
 			addChild(m_passwordText);
+			
+			var loginBtn : Button = new Button();
+			loginBtn.x = 300;
+			loginBtn.y = 160;
+			loginBtn.addEventListener(MouseEvent.CLICK, clickHandler);
+			addChild(loginBtn);
+		}
+		
+		private function sessionConnectHandler(event : Event) : void
+		{
 		}
 		
 		private function loginResponseHandler(event : Event) : void
 		{
-			var lr : LoginResponse = event as LoginResponse;
-			trace("Recv: " + lr.loginResult);
+			var response : LoginResponse = event as LoginResponse;
+			if (response.retcode == 0)
+				m_resultFormat.color = 0x00ff00;
+			else
+				m_resultFormat.color = 0xff0000;
+			m_resultFormat.size = 24;
+			m_resultLabel.defaultTextFormat = m_resultFormat;
+			m_resultLabel.text = response.loginResult;
+		}
+		
+		private function clickHandler(event : MouseEvent) : void
+		{
+			var loginRequest : PlayerLogin = new PlayerLogin();
+			loginRequest.userName = m_nameText.text;
+			loginRequest.password = m_passwordText.text;
+			m_session.send(loginRequest);
 		}
 	}
 	

@@ -39,6 +39,7 @@ package catman.net
 			if (m_permitSend)
 			{
 				m_sock.writeBytes(Protocol.encode(protocol));
+				m_sock.flush();
 				return true;
 			}
 			return false;
@@ -56,11 +57,7 @@ package catman.net
 		protected function connectHandler(event : Event) : void
 		{
 			m_permitSend = true;
-			// temporary
-			var pl : PlayerLogin = new PlayerLogin();
-			pl.userName = "毛太祖";
-			pl.password = "毛泽东";
-			send(pl);
+			dispatchEvent(event);
 		}
 		
 		protected function socketDataHandler(event : ProgressEvent) : void
@@ -70,22 +67,22 @@ package catman.net
 			m_sock.readBytes(stream.bytes);
 			for (var p : Protocol; (p = Protocol.decode(stream)) != null; )
 				dispatchEvent(p);
-			
 		}
 		
 		protected function closeHandler(event : Event) : void
 		{
 			m_permitSend = false;
+			dispatchEvent(event);
 		}
 		
 		protected function ioErrorHandler(event : IOErrorEvent) : void
 		{
-			trace("IOError: " + event);
+			dispatchEvent(event);
 		}
 		
 		protected function securityErrorHandler(event : SecurityErrorEvent) : void
 		{
-			trace("SecurityError: " + event);
+			dispatchEvent(event);
 		}
 	}
 
