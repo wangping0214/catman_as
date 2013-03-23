@@ -55,7 +55,7 @@ void ProDefAS::writeMethods(FILE *destFile, uint32_t tabCount) const
 	// constructor
 	fprintf(destFile, "%spublic function %s()\n", TabString::get(tabCount), m_name.c_str());
 	fprintf(destFile, "%s{\n", TabString::get(tabCount));
-	fprintf(destFile, "%ssuper(%u, ProtocolType.%s);\n", TabString::get(tabCount + 1), m_type, upperName.c_str());
+	fprintf(destFile, "%ssuper(%u, ProtocolTypes.%s);\n", TabString::get(tabCount + 1), m_type, upperName.c_str());
 	fprintf(destFile, "%s}\n", TabString::get(tabCount));
 	fprintf(destFile, "\n");
 
@@ -75,7 +75,7 @@ void ProDefAS::writeMethods(FILE *destFile, uint32_t tabCount) const
 	std::string paramList("\"AlarmEvent\", \"type\", \"bubbles\", \"cancelable\", \"eventPhase\", \"m_id\"");
 	for (FieldList::const_iterator it = m_fields.begin(), ie = m_fields.end(); it != ie; ++ it)
 		paramList += ", \"" + it->name() + "\"";
-	fprintf(destFile, "%sreturn formatToString(%s);", TabString::get(tabCount + 1), paramList.c_str());
+	fprintf(destFile, "%sreturn formatToString(%s);\n", TabString::get(tabCount + 1), paramList.c_str());
 	fprintf(destFile, "%s}\n", TabString::get(tabCount));
 	fprintf(destFile, "\n");
 

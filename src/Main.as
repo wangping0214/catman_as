@@ -9,9 +9,10 @@ package
 	import flash.text.TextFieldType;
 	import flash.text.TextFormat;
 	import flash.text.TextFieldAutoSize;
-	import protocol.LoginResponse;
+	import protocol.ProtocolTypes;
 	import protocol.PlayerLogin;
-	import protocol.ProtocolType;
+	import protocol.LoginResponse;
+	import protocol.ProtocolStubs;
 	import ui.Button;
 	
 	/**
@@ -20,8 +21,6 @@ package
 	 */
 	public class Main extends Sprite 
 	{	
-		private var pl : PlayerLogin = new PlayerLogin();
-		private var lr : LoginResponse = new LoginResponse();
 		private var m_nameText : TextField = new TextField();
 		private var m_passwordText : TextField = new TextField();
 		private var m_resultLabel : TextField = new TextField();
@@ -39,11 +38,12 @@ package
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			
+			ProtocolStubs.load();
 			initGui();
 			
 			m_session = new Session();
 			m_session.addEventListener(Event.CONNECT, sessionConnectHandler);
-			m_session.addEventListener(ProtocolType.LOGINRESPONSE, loginResponseHandler);
+			m_session.addEventListener(ProtocolTypes.LOGINRESPONSE, loginResponseHandler);
 			m_session.start("192.168.0.102", 50000);
 		}
 		

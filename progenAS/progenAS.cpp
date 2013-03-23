@@ -1,5 +1,6 @@
 #include "ProDefAS.h"
 #include "TabString.h"
+#include "Toolkit.h"
 #include <algorithm>
 #include <iterator>
 
@@ -35,26 +36,8 @@ int main(int argc, char *argv[])
 			protocolNameList.push_back(proDef.name());
 		}
 	}
-	// TODO refactor: write ProtocolType.as
-	std::string filePath(outPath);
-	if (!filePath.empty())
-	{
-		if (filePath.find_last_of('/') != (filePath.size() - 1))
-			filePath += '/';
-	}
-	filePath += "ProtocolType.as";
-	FILE *destFile = fopen(filePath.c_str(), "w+");
-	fprintf(destFile, "package protocol\n");
-	fprintf(destFile, "{\n");
-	fprintf(destFile, "%spublic class ProtocolType\n", TabString::get(1));
-	fprintf(destFile, "%s{\n", TabString::get(1));
-	for (std::vector<std::string>::const_iterator it = protocolNameList.begin(), ie = protocolNameList.end(); it != ie; ++ it)
-	{
-		std::string upperName;
-		std::transform(it->begin(), it->end(), std::back_inserter(upperName), toupper);
-		fprintf(destFile, "%spublic static const %s : String = \"%s\";\n", TabString::get(2), upperName.c_str(), it->c_str());
-	}
-	fprintf(destFile, "%s}\n", TabString::get(1));
-	fprintf(destFile, "}\n");
+	Toolkit::GenerateProtocolTypes(outPath, protocolNameList, 0);
+	Toolkit::GenerateProtocolStubs(outPath, protocolNameList, 0);
+
 	return 0;
 }
