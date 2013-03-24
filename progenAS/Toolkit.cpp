@@ -4,6 +4,7 @@
 #include <iterator>
 #include <stdio.h>
 #include <assert.h>
+#include <stdint.h>
 #include <Windows.h>
 
 namespace Toolkit
@@ -37,12 +38,36 @@ void StringReplace(char *str, const char *torep, const char *rep)
 	free(result);
 }
 
+void StringReplace(std::string &str, const std::string &torep, const std::string &rep)
+{
+	for (std::string::size_type i = str.find_first_of(torep); i != std::string::npos; i = str.find_first_of(torep, i + 1))
+		str.replace(i, torep.size(), rep);
+}
+
 bool MakePath(const std::string &dirPath)
 {
+	if (dirPath.empty())
+		return false;
+	std::string tmp(dirPath);
+	Toolkit::StringReplace(tmp, "/", "\\");
+	if (tmp.find_last_of('\\') != (tmp.size() - 1))
+		tmp += '\\';
+	for (std::string::size_type i = tmp.find_first_of('\\'); i != std::string::npos; i = tmp.find_first_of('\\', i + 1))
+	{
+		const std::string &subDir = tmp.substr(0, i);
+		uint32_t attrs = GetFileAttributes(subDir.c_str());
+		if (attrs == INVALID_FILE_ATTRIBUTES)
+		{
+			if (!CreateDirectory(subDir.c_str(), NULL))
+				return false;
+		}
+		else if ((attrs & FILE_ATTRIBUTE_DIRECTORY) == 0)
+			return false;
+	}
 	return true;
 }
 
-void GenerateProtocolTypes(const std::string &dirPath, const std::vector<std::string> &protocolNameList, int tabCount)
+void GenerateProtocolTypes(const std::string &dirPath, const std::string &ns, const std::vector<std::string> &protocolNameList, int tabCount)
 {
 	std::string filePath(dirPath);
 	if (!filePath.empty())
@@ -50,7 +75,15 @@ void GenerateProtocolTypes(const std::string &dirPath, const std::vector<std::st
 		if (filePath.find_last_of('/') != (filePath.size() - 1))
 			filePath += '/';
 	}
-	filePath += "ProtocolTypes.as";
+	filePath += ns;
+	Toolkit::StringReplace(filePath, ".", "/");
+	if (!Toolkit::MakePath(filePath))
+	{
+		printf("Failed to make path: %s\n", filePath.c_str());
+		return;
+	}
+	//
+	filePath += "/ProtocolTypes.as";
 	FILE *destFile = fopen(filePath.c_str(), "w+");
 	fprintf(destFile, "package protocol\n");
 	fprintf(destFile, "{\n");
@@ -67,7 +100,7 @@ void GenerateProtocolTypes(const std::string &dirPath, const std::vector<std::st
 	fclose(destFile);
 }
 
-void GenerateProtocolStubs(const std::string &dirPath, const std::vector<std::string> &protocolNameList, int tabCount)
+void GenerateProtocolStubs(const std::string &dirPath, const std::string &ns, const std::vector<std::string> &protocolNameList, int tabCount)
 {
 	std::string filePath(dirPath);
 	if (!filePath.empty())
@@ -75,7 +108,15 @@ void GenerateProtocolStubs(const std::string &dirPath, const std::vector<std::st
 		if (filePath.find_last_of('/') != (filePath.size() - 1))
 			filePath += '/';
 	}
-	filePath += "ProtocolStubs.as";
+	filePath += ns;
+	Toolkit::StringReplace(filePath, ".", "/");
+	if (!Toolkit::MakePath(filePath))
+	{
+		printf("Failed to make path: %s\n", filePath.c_str());
+		return;
+	}
+	filePath += "/ProtocolStubs.as";
+	//
 	FILE *destFile = fopen(filePath.c_str(), "w+");
 	fprintf(destFile, "package protocol\n");
 	fprintf(destFile, "{\n");

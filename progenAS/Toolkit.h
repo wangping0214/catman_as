@@ -17,6 +17,7 @@ namespace Toolkit
  * rep - the substr to replace
  */
 void StringReplace(char *str, const char *torep, const char *rep);
+void StringReplace(std::string &str, const std::string &torep, const std::string &rep);
 
 /* Creates the directory path dirPath.
  * The function will create all parent directories necessary to create the directory.
@@ -25,9 +26,9 @@ void StringReplace(char *str, const char *torep, const char *rep);
 bool MakePath(const std::string &dirPath);
 
 /* Generate protocol type definitions as file */
-void GenerateProtocolTypes(const std::string &dirPath, const std::vector<std::string> &protocolNameList, int tabCount);
+void GenerateProtocolTypes(const std::string &dirPath, const std::string &ns, const std::vector<std::string> &protocolNameList, int tabCount);
 
 /* Generate protocol stub definitions as file */
-void GenerateProtocolStubs(const std::string &dirPath, const std::vector<std::string> &protocolNameList, int tabCount);
+void GenerateProtocolStubs(const std::string &dirPath, const std::string &ns, const std::vector<std::string> &protocolNameList, int tabCount);
 
 }

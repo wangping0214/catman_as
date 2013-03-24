@@ -24,11 +24,15 @@ void ProDefAS::write(const std::string &dirPath, const std::string &ns, uint32_t
 		if (filePath.find_last_of('/') != (filePath.size() - 1))
 			filePath += '/';
 	}
-	char *nsPath = new char[ns.size() + 1];
-	strcpy(nsPath, ns.c_str());
-	Toolkit::StringReplace(nsPath, ".", "/");
-	filePath += std::string(nsPath) + "/" + m_name + ".as";
-	delete []nsPath;
+	filePath += ns;
+	Toolkit::StringReplace(filePath, ".", "/");
+	if (!Toolkit::MakePath(filePath))
+	{
+		printf("Failed to make path: %s\n", filePath.c_str());
+		return;
+	}
+	//
+	filePath += "/" + m_name + ".as";
 	FILE *destFile = fopen(filePath.c_str(), "w+");
 	assert(NULL != destFile);
 	fprintf(destFile, "%spackage %s\n", TabString::get(tabCount), ns.c_str());
@@ -110,15 +114,6 @@ void ProDefAS::writeMethods(FILE *destFile, uint32_t tabCount) const
 	}
 	fprintf(destFile, "%sreturn stream;\n", TabString::get(tabCount + 1));
 	fprintf(destFile, "%s}\n", TabString::get(tabCount));
-	// fprintf(destFile, "\n");
-
-	// process method
-	/*
-	fprintf(destFile, "%soverride public function process() : void\n", TabString::get(tabCount));
-	fprintf(destFile, "%s{\n", TabString::get(tabCount));
-	fprintf(destFile, "%s// TODO: add your code here.\n", TabString::get(tabCount + 1));
-	fprintf(destFile, "%s}\n", TabString::get(tabCount));
-	*/
 }
 
 const std::string& ProDefAS::name() const
