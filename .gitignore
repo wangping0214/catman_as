@@ -6,6 +6,7 @@ bin-release/
 # Other files and folders
 .settings/
 obj/
+lib/
 *.as3proj
 *.swf
 progenAS/progenAS.vcxproj*
@@ -13,6 +14,8 @@ progenAS/Debug
 src/protocol
 *.exe
 *.bat
+src/embeds
+src/pb
 
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
