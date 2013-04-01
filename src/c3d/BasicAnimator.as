@@ -130,7 +130,7 @@ package c3d
 			m_hoverController = new HoverController(m_camera);
 			m_hoverController.tiltAngle = 0;
 			m_hoverController.panAngle = 180;
-			m_hoverController.minTiltAngle = -60;
+			m_hoverController.minTiltAngle = 0;
 			m_hoverController.maxTiltAngle = 60;
 			
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
@@ -416,8 +416,8 @@ package c3d
 			m_isMoving = true;
 			m_animator.playbackSpeed = dir * (m_isRunning ? RUN_SPEED : WALK_SPEED);
 			var anim : String = m_isRunning ? ANIM_RUN : ANIM_WALK;
-			m_hero.x += 20;
-			m_hero.z -= 20;
+			m_hero.x += dir * 20;
+			m_hero.z -= dir * 20;
 			if (m_currentAnim == anim)
 				return;
 			m_currentAnim = anim;
