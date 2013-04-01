@@ -44,6 +44,7 @@ package c3d
 	public class BasicAnimator extends Sprite
 	{
 		private var m_modelTexture : BitmapTexture;
+		private var m_groundTexture : BitmapTexture;
 		private const DEMO_COLOR : Array = [0xffffff, 0x99AAff, 0x222233]; 
 		
 		// engine variables
@@ -95,8 +96,9 @@ package c3d
 		
 		private var m_meshUrl : String = "MaxAWDWorkflow.awd";
 		private var m_textureUrl : String = "onkba_N.jpg";
+		private var m_grassUrl : String = "grass.jpg";
 		private var m_assetsThatAreloaded : Number = 0;
-		private var m_assetsToLoaded : int = 2;
+		private var m_assetsToLoaded : int = 3;
 		
 		public function BasicAnimator() 
 		{
@@ -141,6 +143,7 @@ package c3d
 			addChild(m_awayStats);
 			
 			// create the ground plane
+			/*
 			m_groundMaterial = new ColorMaterial(0x333333);
 			m_groundMaterial.addMethod(new FogMethod(1000, 3000, DEMO_COLOR[2]));
 			m_groundMaterial.ambient = 0.25;
@@ -148,6 +151,7 @@ package c3d
 			m_ground.geometry.scaleUV(50, 50);
 			m_ground.y = -380;
 			m_scene.addChild(m_ground);
+			*/
 		}
 		
 		/*
@@ -194,8 +198,10 @@ package c3d
 			m_lightPicker = new StaticLightPicker([m_sunLight, m_skyLight]);
 			
 			// apply the lighting effects to the ground material
+			/*
 			m_groundMaterial.lightPicker = m_lightPicker;
 			m_groundMaterial.shadowMethod = new DitheredShadowMapMethod(m_sunLight);
+			*/
 		}
 		
 		private function initLoading() : void
@@ -206,6 +212,7 @@ package c3d
 			AssetLibrary.addEventListener(LoaderEvent.LOAD_ERROR, onLoadError);
 			AssetLibrary.load(new URLRequest(m_meshUrl));
 			AssetLibrary.load(new URLRequest(m_textureUrl));
+			AssetLibrary.load(new URLRequest(m_grassUrl));
 		}
 		
 		private function onAssetComplete(event : AssetEvent) : void
@@ -261,6 +268,18 @@ package c3d
 			m_hero.z = 1000;
 			m_hero.rotationY = -45;
 			m_scene.addChild(m_hero);
+			
+			
+			m_groundTexture = BitmapTexture(AssetLibrary.getAsset(m_grassUrl));
+			var grassMaterial : TextureMaterial = new TextureMaterial(m_groundTexture);
+			grassMaterial.lightPicker = m_lightPicker;
+			grassMaterial.repeat = true;
+			
+			m_ground = new Mesh(new PlaneGeometry(50000, 50000), m_groundMaterial);
+			m_ground.material = grassMaterial;
+			m_ground.geometry.scaleUV(50, 50);
+			m_ground.y = -380;
+			m_scene.addChild(m_ground);
 			
 			m_animationSet = new SkeletonAnimationSet(3);
 			m_animationSet.addState(m_breatheState.name, m_breatheState);
@@ -330,8 +349,10 @@ package c3d
 		
 		private function onEnterFrame(event : Event) : void
 		{
+			/*
 			if (m_hero)
 				m_hero.rotationY += m_currentRotationInc;
+				*/
 			m_skyLight.x = m_camera.x;
 			m_skyLight.y = m_camera.y;
 			m_skyLight.z = m_camera.z;
@@ -395,6 +416,8 @@ package c3d
 			m_isMoving = true;
 			m_animator.playbackSpeed = dir * (m_isRunning ? RUN_SPEED : WALK_SPEED);
 			var anim : String = m_isRunning ? ANIM_RUN : ANIM_WALK;
+			m_hero.x += 20;
+			m_hero.z -= 20;
 			if (m_currentAnim == anim)
 				return;
 			m_currentAnim = anim;
