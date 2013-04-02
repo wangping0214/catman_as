@@ -354,6 +354,7 @@ package c3d
 		{
 			//if (m_hero)
 			//	m_hero.rotationY += m_currentRotationInc;
+			updateMovement(m_movementDirection);
 			m_skyLight.x = m_camera.x;
 			m_skyLight.y = m_camera.y;
 			m_skyLight.z = m_camera.z;
@@ -362,6 +363,7 @@ package c3d
 		
 		private function onKeyDown(event : KeyboardEvent) : void
 		{
+			trace(event.keyCode);
 			switch (event.keyCode)
 			{
 				case Keyboard.SHIFT:
@@ -371,11 +373,15 @@ package c3d
 					break;
 				case Keyboard.UP:
 				case Keyboard.W:
-					updateMovement(m_movementDirection = 1);
+					//updateMovement(m_movementDirection = 1);
+					m_isMoving = true;
+					m_movementDirection = 1;
 					break;
 				case Keyboard.DOWN:
 				case Keyboard.S:
-					updateMovement(m_movementDirection = -1);
+					//updateMovement(m_movementDirection = -1);
+					m_isMoving = true;
+					m_movementDirection = -1;
 					break;
 				case Keyboard.LEFT:
 				case Keyboard.A:
@@ -418,7 +424,9 @@ package c3d
 		
 		private function updateMovement(dir : Number) : void
 		{
-			m_isMoving = true;
+			//m_isMoving = true;
+			if (!m_isMoving)
+				return;
 			m_animator.playbackSpeed = dir * (m_isRunning ? RUN_SPEED : WALK_SPEED);
 			var anim : String = m_isRunning ? ANIM_RUN : ANIM_WALK;
 			var rotationYRadians : Number = m_hero.rotationY * Math.PI / 180;
