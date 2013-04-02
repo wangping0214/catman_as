@@ -9,6 +9,7 @@ package c3d
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
+	import away3d.controllers.LookAtController;
 	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
 	import away3d.lights.DirectionalLight;
@@ -72,10 +73,11 @@ package c3d
 		private const ANIM_WALK : String = "Walk";
 		private const ANIM_RUN : String = "Run";
 		private const XFADE_TIME : Number = 0.5;
-		private const ROTATION_SPEED : Number = 3;
+		private const ROTATION_SPEED : Number = 18;
 		private const RUN_SPEED : Number = 2;
 		private const WALK_SPEED : Number = 1;
 		private const BREATHE_SPEED : Number = 1;
+		private const SHIFT_FACTOR : Number = 40;
 		
 		// light objects
 		private var m_sunLight : DirectionalLight;
@@ -91,6 +93,7 @@ package c3d
 		private var m_ground : Mesh;
 		
 		private var m_hoverController : HoverController;
+		//private var m_lookatController : LookAtController;
 		private var m_prevMouseX : Number;
 		private var m_prevMouseY : Number;
 		
@@ -266,7 +269,7 @@ package c3d
 			m_hero.material = material;
 			m_hero.castsShadows = true;
 			m_hero.z = 1000;
-			m_hero.rotationY = -45;
+			//m_hero.rotationY = -45;
 			m_scene.addChild(m_hero);
 			
 			
@@ -349,10 +352,8 @@ package c3d
 		
 		private function onEnterFrame(event : Event) : void
 		{
-			/*
-			if (m_hero)
-				m_hero.rotationY += m_currentRotationInc;
-				*/
+			//if (m_hero)
+			//	m_hero.rotationY += m_currentRotationInc;
 			m_skyLight.x = m_camera.x;
 			m_skyLight.y = m_camera.y;
 			m_skyLight.z = m_camera.z;
@@ -378,11 +379,15 @@ package c3d
 					break;
 				case Keyboard.LEFT:
 				case Keyboard.A:
-					m_currentRotationInc = -ROTATION_SPEED;
+					//m_currentRotationInc = -ROTATION_SPEED;
+					if (m_hero)
+						m_hero.rotationY -= ROTATION_SPEED;
 					break;
 				case Keyboard.RIGHT:
 				case Keyboard.D:
-					m_currentRotationInc = ROTATION_SPEED;
+					//m_currentRotationInc = ROTATION_SPEED;
+					if (m_hero)
+						m_hero.rotationY += ROTATION_SPEED;
 					break;
 			}
 		}
@@ -416,8 +421,13 @@ package c3d
 			m_isMoving = true;
 			m_animator.playbackSpeed = dir * (m_isRunning ? RUN_SPEED : WALK_SPEED);
 			var anim : String = m_isRunning ? ANIM_RUN : ANIM_WALK;
-			m_hero.x += dir * 20;
-			m_hero.z -= dir * 20;
+			var rotationYRadians : Number = m_hero.rotationY * Math.PI / 180;
+			var xOffset : Number = -SHIFT_FACTOR * Math.sin(rotationYRadians) * (m_isRunning ? RUN_SPEED*2 : WALK_SPEED);
+			var zOffset : Number = -SHIFT_FACTOR * Math.cos(rotationYRadians) * (m_isRunning ? RUN_SPEED * 2 : WALK_SPEED);
+			trace("xoffset: " + xOffset);
+			trace("zoffset: " + zOffset);
+			m_hero.x += xOffset * m_movementDirection;
+			m_hero.z += zOffset * m_movementDirection;
 			if (m_currentAnim == anim)
 				return;
 			m_currentAnim = anim;
