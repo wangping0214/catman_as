@@ -9,7 +9,6 @@ package c3d
 	import away3d.containers.Scene3D;
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
-	import away3d.controllers.LookAtController;
 	import away3d.debug.AwayStats;
 	import away3d.entities.Mesh;
 	import away3d.lights.DirectionalLight;
@@ -315,6 +314,44 @@ package c3d
 			m_animator.play(m_currentAnim, m_crossfadeTransition);
 		}
 		
+		private function onEnterFrame(event : Event) : void
+		{
+			//if (m_hero)
+			//	m_hero.rotationY += m_currentRotationInc;
+			updateMovement(m_movementDirection);
+			m_skyLight.x = m_camera.x;
+			m_skyLight.y = m_camera.y;
+			m_skyLight.z = m_camera.z;
+			m_view.render();
+		}
+		
+		private function updateMovement(dir : Number) : void
+		{
+			//m_isMoving = true;
+			if (!m_isMoving)
+				return;
+			m_animator.playbackSpeed = dir * (m_isRunning ? RUN_SPEED : WALK_SPEED);
+			var anim : String = m_isRunning ? ANIM_RUN : ANIM_WALK;
+			var rotationYRadians : Number = m_hero.rotationY * Math.PI / 180;
+			var xOffset : Number = -SHIFT_FACTOR * Math.sin(rotationYRadians) * (m_isRunning ? RUN_SPEED*2 : WALK_SPEED);
+			var zOffset : Number = -SHIFT_FACTOR * Math.cos(rotationYRadians) * (m_isRunning ? RUN_SPEED * 2 : WALK_SPEED);
+			trace("xoffset: " + xOffset);
+			trace("zoffset: " + zOffset);
+			m_hero.x += xOffset * m_movementDirection;
+			m_hero.z += zOffset * m_movementDirection;
+			if (m_currentAnim == anim)
+				return;
+			m_currentAnim = anim;
+			m_animator.play(m_currentAnim, m_crossfadeTransition);
+		}
+		
+		private function onResize(event : Event = null) : void
+		{
+			m_view.width = stage.stageWidth;
+			m_view.height = stage.stageHeight;
+			m_awayStats.x = stage.stageWidth - m_awayStats.width;
+		}
+		
 		private function initListeners() : void
 		{
 			addEventListener(Event.ENTER_FRAME, onEnterFrame);
@@ -348,17 +385,6 @@ package c3d
 				m_hoverController.distance = 100;
 			if (m_hoverController.distance > 2000)
 				m_hoverController.distance = 2000;
-		}
-		
-		private function onEnterFrame(event : Event) : void
-		{
-			//if (m_hero)
-			//	m_hero.rotationY += m_currentRotationInc;
-			updateMovement(m_movementDirection);
-			m_skyLight.x = m_camera.x;
-			m_skyLight.y = m_camera.y;
-			m_skyLight.z = m_camera.z;
-			m_view.render();
 		}
 		
 		private function onKeyDown(event : KeyboardEvent) : void
@@ -422,32 +448,6 @@ package c3d
 			}
 		}
 		
-		private function updateMovement(dir : Number) : void
-		{
-			//m_isMoving = true;
-			if (!m_isMoving)
-				return;
-			m_animator.playbackSpeed = dir * (m_isRunning ? RUN_SPEED : WALK_SPEED);
-			var anim : String = m_isRunning ? ANIM_RUN : ANIM_WALK;
-			var rotationYRadians : Number = m_hero.rotationY * Math.PI / 180;
-			var xOffset : Number = -SHIFT_FACTOR * Math.sin(rotationYRadians) * (m_isRunning ? RUN_SPEED*2 : WALK_SPEED);
-			var zOffset : Number = -SHIFT_FACTOR * Math.cos(rotationYRadians) * (m_isRunning ? RUN_SPEED * 2 : WALK_SPEED);
-			trace("xoffset: " + xOffset);
-			trace("zoffset: " + zOffset);
-			m_hero.x += xOffset * m_movementDirection;
-			m_hero.z += zOffset * m_movementDirection;
-			if (m_currentAnim == anim)
-				return;
-			m_currentAnim = anim;
-			m_animator.play(m_currentAnim, m_crossfadeTransition);
-		}
-		
-		private function onResize(event : Event = null) : void
-		{
-			m_view.width = stage.stageWidth;
-			m_view.height = stage.stageHeight;
-			m_awayStats.x = stage.stageWidth - m_awayStats.width;
-		}
 	}
 
 }
