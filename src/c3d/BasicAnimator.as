@@ -44,7 +44,6 @@ package c3d
 	public class BasicAnimator extends Sprite
 	{
 		private var m_modelTexture : BitmapTexture;
-		private var m_groundTexture : BitmapTexture;
 		private const DEMO_COLOR : Array = [0xffffff, 0x99AAff, 0x222233]; 
 		
 		// engine variables
@@ -83,24 +82,22 @@ package c3d
 		private var m_skyLight : PointLight;
 		private var m_lightPicker : StaticLightPicker;
 		
-		// material objects
-		private var m_groundMaterial : ColorMaterial;
-		
 		// scene objects
 		private var m_text : TextField;
 		private var m_hero : Mesh;
-		private var m_ground : Mesh;
+		private var m_floor : Mesh;
 		
 		private var m_hoverController : HoverController;
-		//private var m_lookatController : LookAtController;
 		private var m_prevMouseX : Number;
 		private var m_prevMouseY : Number;
 		
 		private var m_meshUrl : String = "MaxAWDWorkflow.awd";
 		private var m_textureUrl : String = "onkba_N.jpg";
-		private var m_grassUrl : String = "grass.jpg";
+		private var m_floorDiffuseUrl : String = "floor_diffuse.jpg";
+		private var m_floorSpecularUrl : String = "floor_specular.jpg";
+		private var m_floorNormalUrl : String = "floor_normal.jpg";
 		private var m_assetsThatAreloaded : Number = 0;
-		private var m_assetsToLoaded : int = 3;
+		private var m_assetsToLoaded : int = 5;
 		
 		public function BasicAnimator() 
 		{
@@ -130,8 +127,9 @@ package c3d
 			m_view.camera = m_camera;
 			
 			m_hoverController = new HoverController(m_camera);
-			m_hoverController.tiltAngle = 0;
-			m_hoverController.panAngle = 180;
+			m_hoverController.distance = 2000;
+			m_hoverController.tiltAngle = 15;
+			m_hoverController.panAngle = 360;
 			m_hoverController.minTiltAngle = 0;
 			m_hoverController.maxTiltAngle = 60;
 			
@@ -143,17 +141,6 @@ package c3d
 			
 			m_awayStats = new AwayStats(m_view);
 			addChild(m_awayStats);
-			
-			// create the ground plane
-			/*
-			m_groundMaterial = new ColorMaterial(0x333333);
-			m_groundMaterial.addMethod(new FogMethod(1000, 3000, DEMO_COLOR[2]));
-			m_groundMaterial.ambient = 0.25;
-			m_ground = new Mesh(new PlaneGeometry(50000, 50000), m_groundMaterial);
-			m_ground.geometry.scaleUV(50, 50);
-			m_ground.y = -380;
-			m_scene.addChild(m_ground);
-			*/
 		}
 		
 		/*
@@ -198,12 +185,6 @@ package c3d
 			m_scene.addChild(m_skyLight);
 			
 			m_lightPicker = new StaticLightPicker([m_sunLight, m_skyLight]);
-			
-			// apply the lighting effects to the ground material
-			/*
-			m_groundMaterial.lightPicker = m_lightPicker;
-			m_groundMaterial.shadowMethod = new DitheredShadowMapMethod(m_sunLight);
-			*/
 		}
 		
 		private function initLoading() : void
@@ -214,7 +195,9 @@ package c3d
 			AssetLibrary.addEventListener(LoaderEvent.LOAD_ERROR, onLoadError);
 			AssetLibrary.load(new URLRequest(m_meshUrl));
 			AssetLibrary.load(new URLRequest(m_textureUrl));
-			AssetLibrary.load(new URLRequest(m_grassUrl));
+			AssetLibrary.load(new URLRequest(m_floorDiffuseUrl));
+			AssetLibrary.load(new URLRequest(m_floorSpecularUrl));
+			AssetLibrary.load(new URLRequest(m_floorNormalUrl));
 		}
 		
 		private function onAssetComplete(event : AssetEvent) : void
@@ -268,20 +251,21 @@ package c3d
 			m_hero.material = material;
 			m_hero.castsShadows = true;
 			m_hero.z = 1000;
-			//m_hero.rotationY = -45;
 			m_scene.addChild(m_hero);
 			
 			
-			m_groundTexture = BitmapTexture(AssetLibrary.getAsset(m_grassUrl));
-			var grassMaterial : TextureMaterial = new TextureMaterial(m_groundTexture);
-			grassMaterial.lightPicker = m_lightPicker;
-			grassMaterial.repeat = true;
 			
-			m_ground = new Mesh(new PlaneGeometry(50000, 50000), m_groundMaterial);
-			m_ground.material = grassMaterial;
-			m_ground.geometry.scaleUV(50, 50);
-			m_ground.y = -380;
-			m_scene.addChild(m_ground);
+			var floorMaterial : TextureMaterial = new TextureMaterial(BitmapTexture(AssetLibrary.getAsset(m_floorDiffuseUrl)));
+			floorMaterial.specularMap = BitmapTexture(AssetLibrary.getAsset(m_floorSpecularUrl));
+			floorMaterial.normalMap = BitmapTexture(AssetLibrary.getAsset(m_floorNormalUrl));
+			floorMaterial.lightPicker = m_lightPicker;
+			floorMaterial.repeat = true;
+			
+			m_floor = new Mesh(new PlaneGeometry(50000, 50000));
+			m_floor.material = floorMaterial;
+			m_floor.geometry.scaleUV(50, 50);
+			m_floor.y = -380;
+			m_scene.addChild(m_floor);
 			
 			m_animationSet = new SkeletonAnimationSet(3);
 			m_animationSet.addState(m_breatheState.name, m_breatheState);
@@ -316,8 +300,6 @@ package c3d
 		
 		private function onEnterFrame(event : Event) : void
 		{
-			//if (m_hero)
-			//	m_hero.rotationY += m_currentRotationInc;
 			updateMovement(m_movementDirection);
 			m_skyLight.x = m_camera.x;
 			m_skyLight.y = m_camera.y;
@@ -383,8 +365,8 @@ package c3d
 			m_hoverController.distance -= event.delta * 5;
 			if (m_hoverController.distance < 100)
 				m_hoverController.distance = 100;
-			if (m_hoverController.distance > 2000)
-				m_hoverController.distance = 2000;
+			if (m_hoverController.distance > 3000)
+				m_hoverController.distance = 3000;
 		}
 		
 		private function onKeyDown(event : KeyboardEvent) : void
