@@ -21,6 +21,8 @@ package c3d
 	import away3d.materials.methods.RimLightMethod;
 	import away3d.materials.TextureMaterial;
 	import away3d.primitives.PlaneGeometry;
+	import away3d.primitives.SkyBox;
+	import away3d.textures.BitmapCubeTexture;
 	import away3d.textures.BitmapTexture;
 	import away3d.library.AssetLibrary;
 	import away3d.loaders.parsers.AWD2Parser;
@@ -96,8 +98,14 @@ package c3d
 		private var m_floorDiffuseUrl : String = "floor_diffuse.jpg";
 		private var m_floorSpecularUrl : String = "floor_specular.jpg";
 		private var m_floorNormalUrl : String = "floor_normal.jpg";
+		private var m_skyPosXUrl : String = "sky_posX.jpg";
+		private var m_skyNegXUrl : String = "sky_negX.jpg";
+		private var m_skyPosYUrl : String = "sky_posY.jpg";
+		private var m_skyNegYUrl : String = "sky_negY.jpg";
+		private var m_skyPosZUrl : String = "sky_posZ.jpg";
+		private var m_skyNegZUrl : String = "sky_negZ.jpg";
 		private var m_assetsThatAreloaded : Number = 0;
-		private var m_assetsToLoaded : int = 5;
+		private var m_assetsToLoaded : int = 11;
 		
 		public function BasicAnimator() 
 		{
@@ -118,7 +126,7 @@ package c3d
 			m_scene = new Scene3D();
 			
 			m_camera = new Camera3D();
-			m_camera.lens.far = 5000;
+			m_camera.lens.far = 50000;
 			m_camera.lens.near = 20;
 			
 			m_view = new View3D();
@@ -198,6 +206,12 @@ package c3d
 			AssetLibrary.load(new URLRequest(m_floorDiffuseUrl));
 			AssetLibrary.load(new URLRequest(m_floorSpecularUrl));
 			AssetLibrary.load(new URLRequest(m_floorNormalUrl));
+			AssetLibrary.load(new URLRequest(m_skyPosXUrl));
+			AssetLibrary.load(new URLRequest(m_skyNegXUrl));
+			AssetLibrary.load(new URLRequest(m_skyPosYUrl));
+			AssetLibrary.load(new URLRequest(m_skyNegYUrl));
+			AssetLibrary.load(new URLRequest(m_skyPosZUrl));
+			AssetLibrary.load(new URLRequest(m_skyNegZUrl));
 		}
 		
 		private function onAssetComplete(event : AssetEvent) : void
@@ -267,6 +281,16 @@ package c3d
 			m_floor.y = -380;
 			m_scene.addChild(m_floor);
 			
+			var skyPosXTex : BitmapTexture = BitmapTexture(AssetLibrary.getAsset(m_skyPosXUrl));
+			var skyNegXTex : BitmapTexture = BitmapTexture(AssetLibrary.getAsset(m_skyNegXUrl));
+			var skyPosYTex : BitmapTexture = BitmapTexture(AssetLibrary.getAsset(m_skyPosYUrl));
+			var skyNegYTex : BitmapTexture = BitmapTexture(AssetLibrary.getAsset(m_skyNegYUrl));
+			var skyPosZTex : BitmapTexture = BitmapTexture(AssetLibrary.getAsset(m_skyPosZUrl));
+			var skyNegZTex : BitmapTexture = BitmapTexture(AssetLibrary.getAsset(m_skyNegZUrl));
+			var skyTexture : BitmapCubeTexture = new BitmapCubeTexture(skyPosXTex.bitmapData, skyNegXTex.bitmapData, skyPosYTex.bitmapData, skyNegYTex.bitmapData, skyPosZTex.bitmapData, skyNegZTex.bitmapData);
+			var sky : SkyBox = new SkyBox(skyTexture);
+			m_scene.addChild(sky);
+			
 			m_animationSet = new SkeletonAnimationSet(3);
 			m_animationSet.addState(m_breatheState.name, m_breatheState);
 			m_animationSet.addState(m_walkState.name, m_walkState);
@@ -309,16 +333,16 @@ package c3d
 		
 		private function updateMovement(dir : Number) : void
 		{
-			//m_isMoving = true;
 			if (!m_isMoving)
 				return;
 			m_animator.playbackSpeed = dir * (m_isRunning ? RUN_SPEED : WALK_SPEED);
 			var anim : String = m_isRunning ? ANIM_RUN : ANIM_WALK;
 			var rotationYRadians : Number = m_hero.rotationY * Math.PI / 180;
-			var xOffset : Number = -SHIFT_FACTOR * Math.sin(rotationYRadians) * (m_isRunning ? RUN_SPEED*2 : WALK_SPEED);
-			var zOffset : Number = -SHIFT_FACTOR * Math.cos(rotationYRadians) * (m_isRunning ? RUN_SPEED * 2 : WALK_SPEED);
-			trace("xoffset: " + xOffset);
-			trace("zoffset: " + zOffset);
+			var speed : Number = (m_isRunning ? RUN_SPEED * 2 : WALK_SPEED); 
+			var xOffset : Number = -SHIFT_FACTOR * Math.sin(rotationYRadians) * speed;
+			var zOffset : Number = -SHIFT_FACTOR * Math.cos(rotationYRadians) * speed;
+			//trace("xoffset: " + xOffset);
+			//trace("zoffset: " + zOffset);
 			m_hero.x += xOffset * m_movementDirection;
 			m_hero.z += zOffset * m_movementDirection;
 			if (m_currentAnim == anim)
@@ -381,25 +405,21 @@ package c3d
 					break;
 				case Keyboard.UP:
 				case Keyboard.W:
-					//updateMovement(m_movementDirection = 1);
 					m_isMoving = true;
 					m_movementDirection = 1;
 					break;
 				case Keyboard.DOWN:
 				case Keyboard.S:
-					//updateMovement(m_movementDirection = -1);
 					m_isMoving = true;
 					m_movementDirection = -1;
 					break;
 				case Keyboard.LEFT:
 				case Keyboard.A:
-					//m_currentRotationInc = -ROTATION_SPEED;
 					if (m_hero)
 						m_hero.rotationY -= ROTATION_SPEED;
 					break;
 				case Keyboard.RIGHT:
 				case Keyboard.D:
-					//m_currentRotationInc = ROTATION_SPEED;
 					if (m_hero)
 						m_hero.rotationY += ROTATION_SPEED;
 					break;
